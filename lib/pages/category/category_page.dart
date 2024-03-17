@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_financial_life/components/color_picker_dialog.dart';
 import 'package:my_financial_life/models/purchase_category.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final _formData = Map<String, Object>();
+  Color color = Colors.blue.shade900;
 
   @override
   void didChangeDependencies() {
@@ -25,6 +27,8 @@ class _CategoryPageState extends State<CategoryPage> {
         _formData['id'] = category.id;
         _formData['name'] = category.name;
         _formData['description'] = category.description ?? '';
+        _formData['color'] = category.color;
+        color = category.color;
       }
     }
   }
@@ -34,6 +38,8 @@ class _CategoryPageState extends State<CategoryPage> {
       if (!isValid) return;
 
       _formKey.currentState?.save();
+
+      _formData['color'] = color;
 
       try {
         await Provider.of<PurchaseCategoryService>(
@@ -46,7 +52,7 @@ class _CategoryPageState extends State<CategoryPage> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: Text('Ocorreu um erro'),
-            content: Text('Ocorreu um erro ao salvar o cartão de crédito.'),
+            content: Text('Ocorreu um erro ao salvar a categoria.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -60,7 +66,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final widthTextForm = MediaQuery.of(context).size.width * 0.85;
+    final widthTextForm = MediaQuery.of(context).size.width * 0.75;
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro de categorias'),
@@ -91,6 +97,15 @@ class _CategoryPageState extends State<CategoryPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      ColorPickerDialog(
+                        color: color,
+                        onColorSelected: (Color selectedColor) {
+                          // Faça qualquer coisa que você deseja com a cor selecionada, por exemplo, atualizar o estado do componente pai
+                          setState(() {
+                            color = selectedColor;
+                          });
+                        },
+                      ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,

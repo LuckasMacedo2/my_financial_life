@@ -30,6 +30,7 @@ class PurchaseCategoryService with ChangeNotifier {
           id: purcCategoryId,
           name: purcCategory['name'],
           description: purcCategory['description'],
+          color: Color(purcCategory['color']),
         ),
       );
     });
@@ -43,6 +44,7 @@ class PurchaseCategoryService with ChangeNotifier {
       id: hasId ? data['id'] as String : Random().nextDouble().toString(),
       name: data['name'] as String,
       description: data['description'] as String,
+      color: data['color'] as Color,
     );
 
     if (hasId)
@@ -62,6 +64,7 @@ class PurchaseCategoryService with ChangeNotifier {
           {
             "name": purcCategory.name,
             "description": purcCategory.description,
+            "color": purcCategory.color.value,
           },
         ),
       );
@@ -80,6 +83,7 @@ class PurchaseCategoryService with ChangeNotifier {
           {
             "name": purcCategory.name,
             "description": purcCategory.description,
+            "color": purcCategory.color.value,
           },
         ),
       );
@@ -90,6 +94,7 @@ class PurchaseCategoryService with ChangeNotifier {
           id: id,
           name: purcCategory.name,
           description: purcCategory.description,
+          color: purcCategory.color
         ),
       );
       notifyListeners(); // Chama o notificador sempre que houver uma mudança na lista

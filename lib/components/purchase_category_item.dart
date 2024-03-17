@@ -12,6 +12,7 @@ class PurchaseCategoryItem extends StatelessWidget {
       elevation: 5,
       child: ListTile(
         leading: CircleAvatar(
+          backgroundColor: purchaseCategory.color,
           child: Text(purchaseCategory.name[0].toUpperCase()),
         ),
         title: Text(purchaseCategory.name),

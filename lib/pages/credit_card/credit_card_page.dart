@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:money_formatter/money_formatter.dart';
+import 'package:my_financial_life/components/color_picker_dialog.dart';
 import 'package:my_financial_life/models/credit_cart.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
 import 'package:provider/provider.dart';
@@ -33,37 +34,9 @@ class _CreditCardPageState extends State<CreditCardPage> {
     }
   }
 
-  // Improve this creating a component to this
-  _selectColor() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Selecione a cor'),
-          content: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ColorPicker(
-                pickerColor: color,
-                onColorChanged: (Color color) => setState(
-                  () => this.color = color,
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Selecione',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final widthTextForm = MediaQuery.of(context).size.width * 0.5;
-    final SIZE_SELECT_COLOR = 75.0;
 
     _submitForm() async {
       final isValid = _formKey.currentState?.validate() ?? false;
@@ -126,21 +99,14 @@ class _CreditCardPageState extends State<CreditCardPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: CircleAvatar(
-                          backgroundColor: color,
-                          radius: SIZE_SELECT_COLOR,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.color_lens,
-                              size: SIZE_SELECT_COLOR,
-                            ),
-                            onPressed: () {
-                              _selectColor();
-                            },
-                          ),
-                        ),
+                      ColorPickerDialog(
+                        color: color,
+                        onColorSelected: (Color selectedColor) {
+                          // Faça qualquer coisa que você deseja com a cor selecionada, por exemplo, atualizar o estado do componente pai
+                          setState(() {
+                            color = selectedColor;
+                          });
+                        },
                       ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
