@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_financial_life/pages/category/category_list_page.dart';
+import 'package:my_financial_life/pages/category/category_page.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_list.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_page.dart';
 import 'package:my_financial_life/pages/home_page.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +26,10 @@ class MyApp extends StatelessWidget {
           // Um provider que depende de outro. O de lista de produtos depende do provider de autenticação
           create: (_) => CreditCardService(),
         ),
+        ChangeNotifierProvider<PurchaseCategoryService>(
+          // Um provider que depende de outro. O de lista de produtos depende do provider de autenticação
+          create: (_) => PurchaseCategoryService(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -33,6 +41,8 @@ class MyApp extends StatelessWidget {
         routes: {
           AppRoutes.CREDIT_CARD_FORM: (ctx) => CreditCardPage(),
           AppRoutes.CREDIT_CARD_LIST: (ctx) => CreditCardListPage(),
+          AppRoutes.CATEGORY_FORM: (ctx) => CategoryPage(),
+          AppRoutes.CATEGORY_LIST: (ctx) => CategoryListPage(),
           AppRoutes.HOME_PAGE: (ctx) => HomePage(),
         },
       ),

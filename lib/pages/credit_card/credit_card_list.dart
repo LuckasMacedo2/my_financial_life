@@ -37,7 +37,7 @@ class _CreditCardListPageState extends State<CreditCardListPage> {
     final CreditCardService creditCards = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gerenciar cartões de crédito'),
+        title: Text('Cartões de crédito'),
         actions: [
           IconButton(
             onPressed: () {

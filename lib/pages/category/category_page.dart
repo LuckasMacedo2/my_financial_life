@@ -1,17 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:money_formatter/money_formatter.dart';
-import 'package:my_financial_life/models/credit_cart.dart';
-import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:my_financial_life/models/purchase_category.dart';
+import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:provider/provider.dart';
 
-class CreditCardPage extends StatefulWidget {
+class CategoryPage extends StatefulWidget {
   @override
-  State<CreditCardPage> createState() => _CreditCardPageState();
+  State<CategoryPage> createState() => _CategoryPageState();
 }
 
-class _CreditCardPageState extends State<CreditCardPage> {
-  Color color = Colors.blue.shade900;
+class _CategoryPageState extends State<CategoryPage> {
   final _formKey = GlobalKey<FormState>();
   final _formData = Map<String, Object>();
 
@@ -23,61 +21,25 @@ class _CreditCardPageState extends State<CreditCardPage> {
       final arg = ModalRoute.of(context)?.settings.arguments;
 
       if (arg != null) {
-        final creditCard = arg as CreditCard;
-        _formData['id'] = creditCard.id;
-        _formData['name'] = creditCard.name;
-        _formData['limit'] = creditCard.limit;
-        _formData['color'] = creditCard.color;
-        color = creditCard.color;
+        final category = arg as PurchaseCategory;
+        _formData['id'] = category.id;
+        _formData['name'] = category.name;
+        _formData['description'] = category.description ?? '';
       }
     }
   }
 
-  // Improve this creating a component to this
-  _selectColor() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Selecione a cor'),
-          content: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ColorPicker(
-                pickerColor: color,
-                onColorChanged: (Color color) => setState(
-                  () => this.color = color,
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Selecione',
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-  @override
-  Widget build(BuildContext context) {
-    final widthTextForm = MediaQuery.of(context).size.width * 0.5;
-    final SIZE_SELECT_COLOR = 75.0;
-
-    _submitForm() async {
+  _submitForm() async {
       final isValid = _formKey.currentState?.validate() ?? false;
       if (!isValid) return;
 
       _formKey.currentState?.save();
 
-      _formData['color'] = color;
-
       try {
-        await Provider.of<CreditCardService>(
+        await Provider.of<PurchaseCategoryService>(
           context,
           listen: false,
-        ).saveCreditCard(_formData);
+        ).savePurchaseCategory(_formData);
         Navigator.of(context).pop();
       } catch (error) {
         await showDialog<void>(
@@ -96,9 +58,12 @@ class _CreditCardPageState extends State<CreditCardPage> {
       } finally {}
     }
 
+  @override
+  Widget build(BuildContext context) {
+    final widthTextForm = MediaQuery.of(context).size.width * 0.85;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de cartão de crédito'),
+        title: Text('Cadastro de categorias'),
         actions: [
           IconButton(
             onPressed: _submitForm,
@@ -126,22 +91,6 @@ class _CreditCardPageState extends State<CreditCardPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: CircleAvatar(
-                          backgroundColor: color,
-                          radius: SIZE_SELECT_COLOR,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.color_lens,
-                              size: SIZE_SELECT_COLOR,
-                            ),
-                            onPressed: () {
-                              _selectColor();
-                            },
-                          ),
-                        ),
-                      ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,17 +120,13 @@ class _CreditCardPageState extends State<CreditCardPage> {
                           Container(
                             width: widthTextForm,
                             child: TextFormField(
-                              initialValue: _formData['limit']?.toString(),
+                              initialValue: _formData['description']?.toString(),
                               decoration: InputDecoration(
-                                labelText: 'Limite',
+                                labelText: 'Descrição',
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 15, horizontal: 10),
                               ),
-                              keyboardType: TextInputType.numberWithOptions(
-                                decimal: true,
-                              ),
-                              onSaved: (limit) => _formData['limit'] =
-                                  double.parse(limit ?? '0'),
+                              onSaved: (description) => _formData['description'] = description ?? '',
                             ),
                           ),
                         ],
