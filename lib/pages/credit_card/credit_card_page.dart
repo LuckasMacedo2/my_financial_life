@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:money_formatter/money_formatter.dart';
 import 'package:my_financial_life/models/credit_cart.dart';
+import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:provider/provider.dart';
 
 class CreditCardPage extends StatefulWidget {
   @override
@@ -8,10 +11,29 @@ class CreditCardPage extends StatefulWidget {
 }
 
 class _CreditCardPageState extends State<CreditCardPage> {
-  //Color color = Color.fromRGBO(236, 30, 30, 0.004);
   Color color = Colors.blue.shade900;
   final _formKey = GlobalKey<FormState>();
+  final _formData = Map<String, Object>();
 
+    @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    if (_formData.isEmpty) {
+      final arg = ModalRoute.of(context)?.settings.arguments;
+
+      if (arg != null) {
+        final creditCard = arg as CreditCard;
+        _formData['id'] = creditCard.id;
+        _formData['name'] = creditCard.name;
+        _formData['limit'] = creditCard.limit;
+        _formData['color'] = creditCard.color;
+        color = creditCard.color;
+      }
+    }
+  }
+
+  // Improve this creating a component to this
   _selectColor() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -42,16 +64,36 @@ class _CreditCardPageState extends State<CreditCardPage> {
   Widget build(BuildContext context) {
     final widthTextForm = MediaQuery.of(context).size.width * 0.5;
     final SIZE_SELECT_COLOR = 75.0;
-    final _formData = Map<String, Object>();
 
-    _submitForm() {
+    _submitForm() async {
       final isValid = _formKey.currentState?.validate() ?? false;
       if (!isValid) return;
 
       _formKey.currentState?.save();
 
       _formData['color'] = color;
-      print(_formData);
+
+      try {
+        await Provider.of<CreditCardService>(
+          context,
+          listen: false,
+        ).saveCreditCard(_formData);
+        Navigator.of(context).pop();
+      } catch (error) {
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text('Ocorreu um erro'),
+            content: Text('Ocorreu um erro ao salvar o cartão de crédito.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Ok'),
+              )
+            ],
+          ),
+        );
+      } finally {}
     }
 
     return Scaffold(
@@ -82,7 +124,7 @@ class _CreditCardPageState extends State<CreditCardPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(20.0),
@@ -116,12 +158,12 @@ class _CreditCardPageState extends State<CreditCardPage> {
                               onSaved: (name) => _formData['name'] = name ?? '',
                               validator: (_name) {
                                 final name = _name ?? '';
-          
+
                                 if (name.trim().isEmpty)
                                   return 'O nome é obrigatório';
                                 if (name.trim().length < 3)
                                   return 'O nome precisa de no minímo 3 letras';
-          
+
                                 return null;
                               },
                             ),
@@ -138,8 +180,8 @@ class _CreditCardPageState extends State<CreditCardPage> {
                               keyboardType: TextInputType.numberWithOptions(
                                 decimal: true,
                               ),
-                              onSaved: (limit) =>
-                                  _formData['limit'] = double.parse(limit ?? '0'),
+                              onSaved: (limit) => _formData['limit'] =
+                                  double.parse(limit ?? '0'),
                             ),
                           ),
                         ],
