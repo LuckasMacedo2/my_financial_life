@@ -64,7 +64,15 @@ class _PurchaseListPageState extends State<PurchaseListPage> {
               ),
             ),
             FloatingSum(deviceSize: deviceSize, children: [
-              Text('Total a pagar: ${Formatter().formatMoney(purchases.sumNotPaid())}',),
+              Text(
+                'Total: ${Formatter().formatMoney(purchases.sumValues())}',
+              ),
+              Text(
+                'Total a pagar: ${Formatter().formatMoney(purchases.sumNotPaid())}',
+              ),
+              Text(
+                'Já pago: ${Formatter().formatMoney(purchases.diff())}',
+              ),
             ]),
           ],
         ),

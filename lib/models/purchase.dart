@@ -9,12 +9,19 @@ class Purchase {
   DateTime date;
   PurchaseCategory? category;
   final String categoryId;
+  final bool paid;
 
-  Purchase({required this.id, required this.value, required this.installmentsQuantity, required this.date, required this.categoryId, required this.description, this.creditCardId, this.category,});
+  Purchase({
+    required this.id,
+    required this.value,
+    required this.installmentsQuantity,
+    required this.date,
+    required this.categoryId,
+    required this.description,
+    required this.paid,
+    this.creditCardId,
+    this.category,
+  });
 }
 
-enum PaymentForm {
-  CreditCard,
-  Money,
-  BankBillet
-}
+enum PaymentForm { CreditCard, Money, BankBillet }

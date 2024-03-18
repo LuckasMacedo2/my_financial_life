@@ -24,17 +24,16 @@ class PurchaseService with ChangeNotifier {
   }
 
   double sumNotPaid() {
-    DateTime now = DateTime.now();
-    DateTime minDate = DateTime(now.year, now.month, 10);
-    double sum = 0;
+    double total = 0.0;
+    _items.forEach((purc) {
+      if(!purc.paid)
+        total += purc.value;
+    });
+    return total;
+  }
 
-    for (var item in _items) {
-      if (item.date.isAfter(minDate) || item.date.isAtSameMomentAs(minDate)) {
-        sum += item.value;
-      }
-    }
-
-    return sum;
+  double diff() {
+    return sumValues() - sumNotPaid();
   }
 
   Future<void> loadPurchase() async {
@@ -47,17 +46,17 @@ class PurchaseService with ChangeNotifier {
 
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((purcId, purc) {
-      _items.add(
-        Purchase(
-          id: purcId,
-          value: purc['value'],
-          description: purc['description'],
-          installmentsQuantity: purc['installmentsQuantity'],
-          creditCardId: purc['creditCardId'],
-          date: DateTime.parse(purc['date']),
-          categoryId: purc['categoryId'],
-        ),
-      );
+      print(purc);
+      _items.add(Purchase(
+        id: purcId,
+        value: purc['value'],
+        description: purc['description'],
+        installmentsQuantity: purc['installmentsQuantity'],
+        creditCardId: purc['creditCardId'] ?? '',
+        date: DateTime.parse(purc['date']),
+        categoryId: purc['categoryId'],
+        paid: purc['paid'].toString().toUpperCase() == 'TRUE',
+      ));
     });
     _items.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
@@ -74,6 +73,7 @@ class PurchaseService with ChangeNotifier {
       installmentsQuantity: int.parse(data['installmentsQuantity'].toString()),
       creditCardId: data['creditCardId'] as String,
       categoryId: data['categoryId'] as String,
+      paid: data['paid'] as bool,
     );
 
     if (purc.installmentsQuantity > 1) {
@@ -115,6 +115,7 @@ class PurchaseService with ChangeNotifier {
             "installmentsQuantity": purc.installmentsQuantity,
             "creditCardId": purc.creditCardId,
             "categoryId": purc.categoryId,
+            "paid": purc.paid,
           },
         ),
       );
@@ -137,6 +138,7 @@ class PurchaseService with ChangeNotifier {
             "installmentsQuantity": purc.installmentsQuantity,
             "creditCardId": purc.creditCardId,
             "categoryId": purc.categoryId,
+            "paid": purc.paid,
           },
         ),
       );
@@ -152,6 +154,7 @@ class PurchaseService with ChangeNotifier {
           installmentsQuantity: purc.installmentsQuantity,
           creditCardId: purc.creditCardId,
           categoryId: purc.categoryId,
+          paid: purc.paid,
         ),
       );
       notifyListeners(); // Chama o notificador sempre que houver uma mudança na lista

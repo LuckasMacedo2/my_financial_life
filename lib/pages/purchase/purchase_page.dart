@@ -26,6 +26,7 @@ class _PurchasePageState extends State<PurchasePage> {
   PurchaseCategory? _selectedCategory;
 
   bool _isEdition = false;
+  bool _isPaid = false;
 
   @override
   void initState() {
@@ -58,6 +59,8 @@ class _PurchasePageState extends State<PurchasePage> {
         _formData['date'] = purchase.date;
         _formData['creditCardId'] = purchase.creditCardId ?? '';
         _formData['categoryId'] = purchase.categoryId;
+        _formData['paid'] = _isPaid;
+        _isPaid = purchase.paid;
         _selectedDate = purchase.date;
         _isEdition = true;
         // TODO: Load credit card and category
@@ -78,7 +81,8 @@ class _PurchasePageState extends State<PurchasePage> {
         ? DateTime.now().toIso8601String()
         : _selectedDate!.toIso8601String();
     _formData['categoryId'] = _selectedCategory!.id;
-    
+    _formData['paid'] = _isPaid;
+
     try {
       await Provider.of<PurchaseService>(
         context,
@@ -90,7 +94,7 @@ class _PurchasePageState extends State<PurchasePage> {
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text('Ocorreu um erro'),
-          content: Text('Ocorreu um erro ao salvar a categoria.'),
+          content: Text('Ocorreu um erro ao salvar a compra/dívida.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -100,7 +104,6 @@ class _PurchasePageState extends State<PurchasePage> {
         ),
       );
     } finally {}
-
   }
 
   @override
@@ -111,7 +114,7 @@ class _PurchasePageState extends State<PurchasePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de categorias'),
+        title: Text('Cadastro de compras/dívidas'),
         actions: [
           IconButton(
             onPressed: _submitForm,
@@ -146,16 +149,16 @@ class _PurchasePageState extends State<PurchasePage> {
                           ),
                           onSaved: (description) =>
                               _formData['description'] = description ?? '',
-                              validator: (_name) {
-                                final name = _name ?? '';
+                          validator: (_name) {
+                            final name = _name ?? '';
 
-                                if (name.trim().isEmpty)
-                                  return 'A descrição é obrigatória';
-                                if (name.trim().length < 3)
-                                  return 'A descrição precisa de no minímo 3 letras';
+                            if (name.trim().isEmpty)
+                              return 'A descrição é obrigatória';
+                            if (name.trim().length < 3)
+                              return 'A descrição precisa de no minímo 3 letras';
 
-                                return null;
-                              },
+                            return null;
+                          },
                         ),
                       ),
                       SizedBox(
@@ -182,7 +185,7 @@ class _PurchasePageState extends State<PurchasePage> {
                         width: 15,
                       ),
                       Container(
-                        width: widthTextForm,
+                        width: widthTextForm / 2 - 15,
                         child: TextFormField(
                           enabled: !_isEdition,
                           initialValue: '1',
@@ -201,6 +204,25 @@ class _PurchasePageState extends State<PurchasePage> {
                             return null;
                           },
                         ),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Checkbox(
+                        value: _isPaid,
+                        onChanged: (value) {
+                          setState(() {
+                            _isPaid = value!;
+                          });
+                        },
+                      ), 
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text('Conta paga?'),
+                        ],
                       )
                     ],
                   ),

@@ -29,7 +29,6 @@ class PurchaseCategoryItem extends StatelessWidget {
                   );
                 },
                 icon: Icon(Icons.edit),
-                //color: Theme.of(context).primaryColor,
               ),
             ],
           ),

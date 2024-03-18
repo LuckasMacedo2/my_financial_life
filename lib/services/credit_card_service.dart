@@ -38,6 +38,7 @@ class CreditCardService with ChangeNotifier {
           name: credCardData['name'],
           limit: credCardData['limit'],
           color: Color(credCardData['color']),
+          usedLimit: credCardData['usedLimit'],
         ),
       );
     });
@@ -51,6 +52,7 @@ class CreditCardService with ChangeNotifier {
         id: hasId ? data['id'] as String : Random().nextDouble().toString(),
         name: data['name'] as String,
         limit: data['limit'] as double,
+        usedLimit: (data['usedLimit'] ?? 0.0) as double,
         color: data['color'] as Color);
 
     if (hasId)
@@ -70,6 +72,7 @@ class CreditCardService with ChangeNotifier {
           {
             "name": creditCard.name,
             "limit": creditCard.limit,
+            "usedLimit": creditCard.usedLimit,
             "color": creditCard.color.value,
           },
         ),
@@ -89,6 +92,7 @@ class CreditCardService with ChangeNotifier {
           {
             "name": creditCard.name,
             "limit": creditCard.limit,
+            "usedLimit": creditCard.usedLimit,
             "color": creditCard.color.value,
           },
         ),
@@ -100,6 +104,7 @@ class CreditCardService with ChangeNotifier {
           id: id,
           name: creditCard.name,
           limit: creditCard.limit,
+          usedLimit: creditCard.usedLimit,
           color: creditCard.color,
         ),
       );

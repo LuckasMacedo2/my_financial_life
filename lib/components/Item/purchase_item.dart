@@ -20,9 +20,11 @@ class PurchaseItem extends StatelessWidget {
       elevation: 5,
       child: ListTile(
         leading: Consumer<PurchaseCategoryService>(
-          builder: (BuildContext context, purchaseCategoryService, Widget? child) {
+          builder:
+              (BuildContext context, purchaseCategoryService, Widget? child) {
             return FutureBuilder(
-              future: purchaseCategoryService.loadPurchaseCategoryById(purchase.categoryId),
+              future: purchaseCategoryService
+                  .loadPurchaseCategoryById(purchase.categoryId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return CircularProgressIndicator();
@@ -34,14 +36,31 @@ class PurchaseItem extends StatelessWidget {
                   purchase.category = snapshot.data!;
                   return CircleAvatar(
                     backgroundColor: purchase.category!.color,
-                    child: Text(purchase.description[0].toUpperCase()),
+                    child: Stack(children: [
+                      if (purchase.paid)
+                        Align(
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.green.shade400,
+                            size: 50,
+                          ),
+                        ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          purchase.description[0].toUpperCase(),
+                        ),
+                      ),
+                    ]),
                   );
                 }
               },
             );
           },
         ),
-        title: Text('${purchase.description} - Vencimento: ${DateFormat('dd/MM/yyyy').format(purchase.date)}'),
+        title: Text(
+            '${purchase.description} - Vencimento: ${DateFormat('dd/MM/yyyy').format(purchase.date)}'),
         subtitle: Text(Formatter().formatMoney(purchase.value)),
         trailing: Container(
           width: 100,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
-import 'package:my_financial_life/components/purchase_category_item.dart';
+import 'package:my_financial_life/components/Item/purchase_category_item.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:provider/provider.dart';
