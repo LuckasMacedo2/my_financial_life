@@ -37,6 +37,21 @@ class PurchaseCategoryService with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<PurchaseCategory> loadPurchaseCategoryById(String id) async {
+    final response = await http
+        .get(Uri.parse('${Constants.PURCHASE_CATEGORY_BASE_URL}/$id.json'));
+
+    if (response.body == 'null') throw Exception();
+
+    Map<String, dynamic> data = jsonDecode(response.body);
+    return PurchaseCategory(
+          id: id,
+          name: data['name'],
+          description: data['description'],
+          color: Color(data['color']),
+        );
+  }
+
   Future<void> savePurchaseCategory(Map<String, Object> data) {
     bool hasId = data['id'] != null;
 

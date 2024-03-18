@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:money_formatter/money_formatter.dart';
-import 'package:my_financial_life/components/color_picker_dialog.dart';
+import 'package:my_financial_life/components/picker/color_picker_dialog.dart';
 import 'package:my_financial_life/models/credit_cart.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
 import 'package:provider/provider.dart';
@@ -162,7 +162,7 @@ class _CreditCardPageState extends State<CreditCardPage> {
                       icon: Icon(Icons.save),
                       label: Text('Salvar'),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

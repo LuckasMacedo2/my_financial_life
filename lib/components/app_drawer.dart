@@ -44,6 +44,16 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.shopping_bag_sharp),
+            title: Text('Compras/Dívidas'),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(
+                AppRoutes.PURCHASE_LIST,
+              );
+            },
+          ),
+          Divider(),
         ],
       ),
     );

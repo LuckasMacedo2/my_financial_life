@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:my_financial_life/components/color_picker_dialog.dart';
+import 'package:my_financial_life/components/picker/color_picker_dialog.dart';
 import 'package:my_financial_life/models/purchase_category.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +17,6 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     if (_formData.isEmpty) {
       final arg = ModalRoute.of(context)?.settings.arguments;
@@ -34,35 +33,35 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   _submitForm() async {
-      final isValid = _formKey.currentState?.validate() ?? false;
-      if (!isValid) return;
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid) return;
 
-      _formKey.currentState?.save();
+    _formKey.currentState?.save();
 
-      _formData['color'] = color;
+    _formData['color'] = color;
 
-      try {
-        await Provider.of<PurchaseCategoryService>(
-          context,
-          listen: false,
-        ).savePurchaseCategory(_formData);
-        Navigator.of(context).pop();
-      } catch (error) {
-        await showDialog<void>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text('Ocorreu um erro'),
-            content: Text('Ocorreu um erro ao salvar a categoria.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Ok'),
-              )
-            ],
-          ),
-        );
-      } finally {}
-    }
+    try {
+      await Provider.of<PurchaseCategoryService>(
+        context,
+        listen: false,
+      ).savePurchaseCategory(_formData);
+      Navigator.of(context).pop();
+    } catch (error) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Ocorreu um erro'),
+          content: Text('Ocorreu um erro ao salvar a categoria.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Ok'),
+            )
+          ],
+        ),
+      );
+    } finally {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +100,11 @@ class _CategoryPageState extends State<CategoryPage> {
                         color: color,
                         onColorSelected: (Color selectedColor) {
                           // Faça qualquer coisa que você deseja com a cor selecionada, por exemplo, atualizar o estado do componente pai
-                          setState(() {
-                            color = selectedColor;
-                          });
+                          setState(
+                            () {
+                              color = selectedColor;
+                            },
+                          );
                         },
                       ),
                       Column(
@@ -135,13 +136,15 @@ class _CategoryPageState extends State<CategoryPage> {
                           Container(
                             width: widthTextForm,
                             child: TextFormField(
-                              initialValue: _formData['description']?.toString(),
+                              initialValue:
+                                  _formData['description']?.toString(),
                               decoration: InputDecoration(
                                 labelText: 'Descrição',
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 15, horizontal: 10),
                               ),
-                              onSaved: (description) => _formData['description'] = description ?? '',
+                              onSaved: (description) =>
+                                  _formData['description'] = description ?? '',
                             ),
                           ),
                         ],

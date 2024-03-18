@@ -6,4 +6,7 @@ class AppRoutes {
 
   static const CATEGORY_FORM = '/category-detail';
   static const CATEGORY_LIST = '/category-list'; 
+
+  static const PURCHASE_FORM = '/purchase-detail';
+  static const PURCHASE_LIST = '/purchase-list'; 
 }

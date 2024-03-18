@@ -1,12 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:my_financial_life/pages/category/category_list_page.dart';
-import 'package:my_financial_life/pages/category/category_page.dart';
+import 'package:my_financial_life/pages/category/purchase_category_list_page.dart';
+import 'package:my_financial_life/pages/category/purchase_category_page.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_list.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_page.dart';
 import 'package:my_financial_life/pages/home_page.dart';
+import 'package:my_financial_life/pages/purchase/purchase_list_page.dart';
+import 'package:my_financial_life/pages/purchase/purchase_page.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
+import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 
@@ -23,27 +25,29 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CreditCardService>(
-          // Um provider que depende de outro. O de lista de produtos depende do provider de autenticação
           create: (_) => CreditCardService(),
         ),
         ChangeNotifierProvider<PurchaseCategoryService>(
-          // Um provider que depende de outro. O de lista de produtos depende do provider de autenticação
           create: (_) => PurchaseCategoryService(),
+        ),
+        ChangeNotifierProvider<PurchaseService>(
+          create: (_) => PurchaseService(),
         ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(),
-        darkTheme: ThemeData.dark(), // standard dark theme
-        themeMode: ThemeMode.system, // device controls theme
-        //home: HomePage(),
+        darkTheme: ThemeData.dark(), 
+        themeMode: ThemeMode.system, 
         routes: {
+          AppRoutes.HOME_PAGE: (ctx) => HomePage(),
           AppRoutes.CREDIT_CARD_FORM: (ctx) => CreditCardPage(),
           AppRoutes.CREDIT_CARD_LIST: (ctx) => CreditCardListPage(),
           AppRoutes.CATEGORY_FORM: (ctx) => CategoryPage(),
           AppRoutes.CATEGORY_LIST: (ctx) => CategoryListPage(),
-          AppRoutes.HOME_PAGE: (ctx) => HomePage(),
+          AppRoutes.PURCHASE_FORM: (ctx) => PurchasePage(),
+          AppRoutes.PURCHASE_LIST: (ctx) => PurchaseListPage(),
         },
       ),
     );
