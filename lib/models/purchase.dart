@@ -2,11 +2,11 @@ import 'package:my_financial_life/models/purchase_category.dart';
 
 class Purchase {
   final String id;
-  final double value;
+  double value;
   final String description;
-  final int installmentsQuantity;
+  int installmentsQuantity;
   final String? creditCardId;
-  final DateTime date;
+  DateTime date;
   PurchaseCategory? category;
   final String categoryId;
 

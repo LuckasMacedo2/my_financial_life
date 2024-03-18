@@ -4,10 +4,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_financial_life/exceptions/http_exception.dart';
-import 'package:my_financial_life/models/credit_cart.dart';
 import 'package:my_financial_life/models/purchase.dart';
-import 'package:my_financial_life/models/purchase_category.dart';
 import 'package:my_financial_life/utils/constants.dart';
+import 'package:my_financial_life/utils/utils.dart';
 
 class PurchaseService with ChangeNotifier {
   List<Purchase> _items = [];
@@ -16,11 +15,33 @@ class PurchaseService with ChangeNotifier {
     return _items.length;
   }
 
+  double sumValues() {
+    double total = 0.0;
+    _items.forEach((purc) {
+      total += purc.value;
+    });
+    return total;
+  }
+
+  double sumNotPaid() {
+    DateTime now = DateTime.now();
+    DateTime minDate = DateTime(now.year, now.month, 10);
+    double sum = 0;
+
+    for (var item in _items) {
+      if (item.date.isAfter(minDate) || item.date.isAtSameMomentAs(minDate)) {
+        sum += item.value;
+      }
+    }
+
+    return sum;
+  }
+
   Future<void> loadPurchase() async {
     _items.clear();
 
-    final response = await http
-        .get(Uri.parse('${Constants.PURCHASE_BASE_URL}.json'));
+    final response =
+        await http.get(Uri.parse('${Constants.PURCHASE_BASE_URL}.json'));
 
     if (response.body == 'null') return;
 
@@ -33,15 +54,16 @@ class PurchaseService with ChangeNotifier {
           description: purc['description'],
           installmentsQuantity: purc['installmentsQuantity'],
           creditCardId: purc['creditCardId'],
-          date:  DateTime.parse(purc['date']),
+          date: DateTime.parse(purc['date']),
           categoryId: purc['categoryId'],
         ),
       );
     });
+    _items.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
   }
 
-  Future<void> savePurchase(Map<String, Object> data) {
+  Future<void> savePurchase(Map<String, Object> data) async {
     bool hasId = data['id'] != null;
 
     final purc = Purchase(
@@ -54,6 +76,24 @@ class PurchaseService with ChangeNotifier {
       categoryId: data['categoryId'] as String,
     );
 
+    if (purc.installmentsQuantity > 1) {
+      double valuePerMounth = purc.value / purc.installmentsQuantity;
+      int orignalInstallmentsQuantity = purc.installmentsQuantity;
+      DateTime originalDate = purc.date;
+      // Purchase newPurc = ...purc;
+      for (int i = 0; i < orignalInstallmentsQuantity; i++) {
+        purc.date = Utils().addMonthsToDate(originalDate, i);
+        purc.installmentsQuantity = 1;
+        purc.value = valuePerMounth;
+        await insertOrUpdate(purc, hasId);
+      }
+      return new Future(() => null);
+    } else {
+      return insertOrUpdate(purc, hasId);
+    }
+  }
+
+  Future<void> insertOrUpdate(Purchase purc, bool hasId) {
     if (hasId)
       return updatePurchase(purc);
     else
@@ -102,8 +142,9 @@ class PurchaseService with ChangeNotifier {
       );
 
       final id = jsonDecode(response.body)['name'];
+      print(purc.date);
       _items.add(
-        Purchase(
+        new Purchase(
           id: id,
           value: purc.value,
           description: purc.description,

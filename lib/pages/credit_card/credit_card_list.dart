@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
 import 'package:my_financial_life/components/Item/credit_card_item.dart';
+import 'package:my_financial_life/components/floating_sum.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:my_financial_life/utils/formatter.dart';
@@ -63,33 +64,11 @@ class _CreditCardListPageState extends State<CreditCardListPage> {
                 ),
               ),
             ),
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: Container(
-                padding: EdgeInsets.all(16),
-                width: deviceSize * 2,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 4,
-                  ),
-                  elevation: 5,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16, top: 8, bottom: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Limite total: ${Formatter().formatMoney(creditCards.sumLimits())}'),
-                        Text('Teste'),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            FloatingSum(
+              deviceSize: deviceSize,
+              children: [Text(
+                        'Limite total: ${Formatter().formatMoney(creditCards.sumLimits())}'),
+                    Text('Teste')],
             )
           ],
         ),

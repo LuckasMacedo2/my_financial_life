@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_financial_life/models/purchase.dart';
 import 'package:my_financial_life/models/purchase_category.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
@@ -40,7 +41,7 @@ class PurchaseItem extends StatelessWidget {
             );
           },
         ),
-        title: Text(purchase.description),
+        title: Text('${purchase.description} - Vencimento: ${DateFormat('dd/MM/yyyy').format(purchase.date)}'),
         subtitle: Text(Formatter().formatMoney(purchase.value)),
         trailing: Container(
           width: 100,

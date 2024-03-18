@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:my_financial_life/components/Item/purchase_item.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
+import 'package:my_financial_life/components/floating_sum.dart';
 import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
+import 'package:my_financial_life/utils/formatter.dart';
 import 'package:provider/provider.dart';
 
 class PurchaseListPage extends StatefulWidget {
@@ -32,7 +34,7 @@ class _PurchaseListPageState extends State<PurchaseListPage> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size.width * 0.25;
     final PurchaseService purchases = Provider.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Compras/dívidas'),
@@ -61,6 +63,9 @@ class _PurchaseListPageState extends State<PurchaseListPage> {
                 ),
               ),
             ),
+            FloatingSum(deviceSize: deviceSize, children: [
+              Text('Total a pagar: ${Formatter().formatMoney(purchases.sumNotPaid())}',),
+            ]),
           ],
         ),
       ),
