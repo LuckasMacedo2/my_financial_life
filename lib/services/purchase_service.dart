@@ -36,6 +36,34 @@ class PurchaseService with ChangeNotifier {
     return sumValues() - sumNotPaid();
   }
 
+  double sumPurchasesByCreditCardId(String creditCardId) {
+    double total = 0.0;
+    _items.forEach((purc) {
+      if(!purc.paid && purc.creditCardId == creditCardId)
+        total += purc.value;
+    });
+    return total;
+  }
+
+  Future<double> getSumPurchasesNotByCreditCardId(String creditCardId) async {
+    if(itemsCount == 0) await loadPurchase();
+    return Future(() => sumPurchasesByCreditCardId(creditCardId));
+  }
+
+  double sumPurchasesByCreditCard() {
+    double total = 0.0;
+    _items.forEach((purc) {
+      if(!purc.paid && purc.creditCardId != "")
+        total += purc.value;
+    });
+    return total;
+  }
+
+  Future<double> getSumPurchasesNotByCreditCard() async {
+    if(itemsCount == 0) await loadPurchase();
+    return Future(() => sumPurchasesByCreditCard());
+  }
+
   Future<void> loadPurchase() async {
     _items.clear();
 
@@ -46,7 +74,6 @@ class PurchaseService with ChangeNotifier {
 
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((purcId, purc) {
-      print(purc);
       _items.add(Purchase(
         id: purcId,
         value: purc['value'],
@@ -144,7 +171,6 @@ class PurchaseService with ChangeNotifier {
       );
 
       final id = jsonDecode(response.body)['name'];
-      print(purc.date);
       _items.add(
         new Purchase(
           id: id,

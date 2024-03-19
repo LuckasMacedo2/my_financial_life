@@ -4,6 +4,7 @@ import 'package:money_formatter/money_formatter.dart';
 import 'package:my_financial_life/components/picker/color_picker_dialog.dart';
 import 'package:my_financial_life/models/credit_cart.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/formatter.dart';
 import 'package:provider/provider.dart';
 
@@ -155,12 +156,40 @@ class _CreditCardPageState extends State<CreditCardPage> {
                                   double.parse(limit ?? '0'),
                             ),
                           ),
-                          SizedBox(height: 25,),
+                          SizedBox(
+                            height: 25,
+                          ),
                           if (_isEdition)
-                            Container(
-                              width: widthTextForm,
-                              child: Text(
-                                  'Limite usado: ${Formatter().formatMoney(double.parse(_formData['usedLimit'].toString()))}'),
+                            Consumer<PurchaseService>(
+                              builder: (
+                                BuildContext context,
+                                PurchaseService purchaseService,
+                                Widget? child,
+                              ) {
+                                return FutureBuilder(
+                                  future: purchaseService
+                                      .getSumPurchasesNotByCreditCardId(
+                                    _formData['id'].toString(),
+                                  ),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}');
+                                    } else if (!snapshot.hasData) {
+                                      return Text('No data available');
+                                    } else {
+                                      _formData['usedLimit'] = snapshot.data!;
+                                      return Container(
+                                        width: widthTextForm,
+                                        child: Text(
+                                            'Limite usado: ${Formatter().formatMoney(double.parse(_formData['usedLimit'].toString()))}'),
+                                      );
+                                    }
+                                  },
+                                );
+                              },
                             ),
                         ],
                       ),

@@ -60,7 +60,7 @@ class PurchaseItem extends StatelessWidget {
           },
         ),
         title: Text(
-            '${purchase.description} - Vencimento: ${DateFormat('dd/MM/yyyy').format(purchase.date)}'),
+            '${purchase.description} - Vencimento: ${DateFormat('dd/MM/yyyy').format(purchase.date)}${(purchase.paid ? ' - Pago' : '')}'),
         subtitle: Text(Formatter().formatMoney(purchase.value)),
         trailing: Container(
           width: 100,

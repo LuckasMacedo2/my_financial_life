@@ -3,6 +3,7 @@ import 'package:my_financial_life/components/app_drawer.dart';
 import 'package:my_financial_life/components/Item/credit_card_item.dart';
 import 'package:my_financial_life/components/floating_sum.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:my_financial_life/utils/formatter.dart';
 import 'package:provider/provider.dart';
@@ -66,9 +67,33 @@ class _CreditCardListPageState extends State<CreditCardListPage> {
             ),
             FloatingSum(
               deviceSize: deviceSize,
-              children: [Text(
-                        'Limite total: ${Formatter().formatMoney(creditCards.sumLimits())}'),
-                    Text('Teste')],
+              children: [
+                Text(
+                    'Limite total: ${Formatter().formatMoney(creditCards.sumLimits())}'),
+                Consumer<PurchaseService>(
+                  builder: (BuildContext context,
+                      PurchaseService purchaseService, Widget? child) {
+                    return FutureBuilder(
+                      future: purchaseService.getSumPurchasesNotByCreditCard(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else if (!snapshot.hasData) {
+                          return Text('No data available');
+                        } else {
+                          return Container(
+                            child: Text(
+                                'Limite usado: ${Formatter().formatMoney(double.parse(snapshot.data!.toString()))}'),
+                          );
+                        }
+                      },
+                    );
+                  },
+                ),
+              ],
             )
           ],
         ),
