@@ -35,6 +35,9 @@ dependencies:
   provider: ^5.0.0
   money_formatter: ^0.0.5
   intl: ^0.18.1
+  shared_preferences: ^2.0.8
+  shared_preferences_web: ^2.0.0
+  uuid: ^3.0.4
 
 
   # The following adds the Cupertino Icons font to your application.

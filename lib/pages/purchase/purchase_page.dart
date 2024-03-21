@@ -27,6 +27,7 @@ class _PurchasePageState extends State<PurchasePage> {
 
   bool _isEdition = false;
   bool _isPaid = false;
+  String? _billId;
 
   @override
   void initState() {
@@ -60,6 +61,7 @@ class _PurchasePageState extends State<PurchasePage> {
         _formData['creditCardId'] = purchase.creditCardId ?? '';
         _formData['categoryId'] = purchase.categoryId;
         _formData['paid'] = _isPaid;
+        _billId = purchase.billId;
         _isPaid = purchase.paid;
         _selectedDate = purchase.date;
         _isEdition = true;
@@ -82,6 +84,7 @@ class _PurchasePageState extends State<PurchasePage> {
         : _selectedDate!.toIso8601String();
     _formData['categoryId'] = _selectedCategory!.id;
     _formData['paid'] = _isPaid;
+    _formData['billId'] = _billId ?? '-1';
 
     try {
       await Provider.of<PurchaseService>(

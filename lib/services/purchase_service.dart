@@ -3,10 +3,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:my_financial_life/data/cache_manager.dart';
 import 'package:my_financial_life/exceptions/http_exception.dart';
 import 'package:my_financial_life/models/purchase.dart';
+import 'package:my_financial_life/utils/cache_constants.dart';
 import 'package:my_financial_life/utils/constants.dart';
 import 'package:my_financial_life/utils/utils.dart';
+import 'package:uuid/uuid.dart';
 
 class PurchaseService with ChangeNotifier {
   List<Purchase> _items = [];
@@ -26,8 +29,7 @@ class PurchaseService with ChangeNotifier {
   double sumNotPaid() {
     double total = 0.0;
     _items.forEach((purc) {
-      if(!purc.paid)
-        total += purc.value;
+      if (!purc.paid) total += purc.value;
     });
     return total;
   }
@@ -39,28 +41,26 @@ class PurchaseService with ChangeNotifier {
   double sumPurchasesByCreditCardId(String creditCardId) {
     double total = 0.0;
     _items.forEach((purc) {
-      if(!purc.paid && purc.creditCardId == creditCardId)
-        total += purc.value;
+      if (!purc.paid && purc.creditCardId == creditCardId) total += purc.value;
     });
     return total;
   }
 
   Future<double> getSumPurchasesNotByCreditCardId(String creditCardId) async {
-    if(itemsCount == 0) await loadPurchase();
+    if (itemsCount == 0) await loadPurchase();
     return Future(() => sumPurchasesByCreditCardId(creditCardId));
   }
 
   double sumPurchasesByCreditCard() {
     double total = 0.0;
     _items.forEach((purc) {
-      if(!purc.paid && purc.creditCardId != "")
-        total += purc.value;
+      if (!purc.paid && purc.creditCardId != "") total += purc.value;
     });
     return total;
   }
 
   Future<double> getSumPurchasesNotByCreditCard() async {
-    if(itemsCount == 0) await loadPurchase();
+    if (itemsCount == 0) await loadPurchase();
     return Future(() => sumPurchasesByCreditCard());
   }
 
@@ -74,16 +74,18 @@ class PurchaseService with ChangeNotifier {
 
     Map<String, dynamic> data = jsonDecode(response.body);
     data.forEach((purcId, purc) {
-      _items.add(Purchase(
-        id: purcId,
-        value: purc['value'],
-        description: purc['description'],
-        installmentsQuantity: purc['installmentsQuantity'],
-        creditCardId: purc['creditCardId'] ?? '',
-        date: DateTime.parse(purc['date']),
-        categoryId: purc['categoryId'],
-        paid: purc['paid'].toString().toUpperCase() == 'TRUE',
-      ));
+      _items.add(
+        Purchase(
+            id: purcId,
+            value: purc['value'],
+            description: purc['description'],
+            installmentsQuantity: purc['installmentsQuantity'],
+            creditCardId: purc['creditCardId'] ?? '',
+            date: DateTime.parse(purc['date']),
+            categoryId: purc['categoryId'],
+            paid: purc['paid'].toString().toUpperCase() == 'TRUE',
+            billId: purc['billId']),
+      );
     });
     _items.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
@@ -93,15 +95,18 @@ class PurchaseService with ChangeNotifier {
     bool hasId = data['id'] != null;
 
     final purc = Purchase(
-      id: hasId ? data['id'] as String : Random().nextDouble().toString(),
-      value: double.parse(data['value'].toString()),
-      description: data['description'] as String,
-      date: DateTime.parse(data['date'].toString()),
-      installmentsQuantity: int.parse(data['installmentsQuantity'].toString()),
-      creditCardId: data['creditCardId'] as String,
-      categoryId: data['categoryId'] as String,
-      paid: data['paid'] as bool,
-    );
+        id: hasId ? data['id'] as String : Random().nextDouble().toString(),
+        value: double.parse(data['value'].toString()),
+        description: data['description'] as String,
+        date: DateTime.parse(data['date'].toString()),
+        installmentsQuantity:
+            int.parse(data['installmentsQuantity'].toString()),
+        creditCardId: data['creditCardId'] as String,
+        categoryId: data['categoryId'] as String,
+        paid: data['paid'] as bool,
+        billId: data['billId'] as String);
+
+    if (purc.billId == '-1') purc.billId = Uuid().v4();
 
     if (purc.installmentsQuantity > 1) {
       double valuePerMounth = purc.value / purc.installmentsQuantity;
@@ -109,6 +114,7 @@ class PurchaseService with ChangeNotifier {
       DateTime originalDate = purc.date;
       // Purchase newPurc = ...purc;
       for (int i = 0; i < orignalInstallmentsQuantity; i++) {
+        print(i.toString() + '>> ' + purc.date.toString());
         purc.date = Utils().addMonthsToDate(originalDate, i);
         purc.installmentsQuantity = 1;
         purc.value = valuePerMounth;
@@ -120,11 +126,11 @@ class PurchaseService with ChangeNotifier {
     }
   }
 
-  Future<void> insertOrUpdate(Purchase purc, bool hasId) {
+  Future<void> insertOrUpdate(Purchase purc, bool hasId) async {
     if (hasId)
-      return updatePurchase(purc);
+      return await updatePurchase(purc);
     else
-      return addPurchase(purc);
+      return await addPurchase(purc);
   }
 
   Future<void> updatePurchase(Purchase purc) async {
@@ -143,6 +149,7 @@ class PurchaseService with ChangeNotifier {
             "creditCardId": purc.creditCardId,
             "categoryId": purc.categoryId,
             "paid": purc.paid,
+            "billId": purc.billId,
           },
         ),
       );
@@ -166,6 +173,7 @@ class PurchaseService with ChangeNotifier {
             "creditCardId": purc.creditCardId,
             "categoryId": purc.categoryId,
             "paid": purc.paid,
+            "billId": purc.billId,
           },
         ),
       );
@@ -173,15 +181,15 @@ class PurchaseService with ChangeNotifier {
       final id = jsonDecode(response.body)['name'];
       _items.add(
         new Purchase(
-          id: id,
-          value: purc.value,
-          description: purc.description,
-          date: purc.date,
-          installmentsQuantity: purc.installmentsQuantity,
-          creditCardId: purc.creditCardId,
-          categoryId: purc.categoryId,
-          paid: purc.paid,
-        ),
+            id: id,
+            value: purc.value,
+            description: purc.description,
+            date: purc.date,
+            installmentsQuantity: purc.installmentsQuantity,
+            creditCardId: purc.creditCardId,
+            categoryId: purc.categoryId,
+            paid: purc.paid,
+            billId: purc.billId),
       );
       notifyListeners(); // Chama o notificador sempre que houver uma mudança na lista
     } catch (error) {
