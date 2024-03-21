@@ -10,6 +10,8 @@ class PurchaseHeader {
   DateTime? nextPayDate;
   final String categoryId;
   final bool fullPaid;
+  PurchaseCategory? category;
+  int? installmentsPaidQuantity;
 
   PurchaseHeader({
     required this.id,
@@ -21,5 +23,7 @@ class PurchaseHeader {
     required this.nextPayDate,
     required this.categoryId,
     required this.fullPaid,
+    required this.installmentsPaidQuantity,
+    this.category,
   });
 }

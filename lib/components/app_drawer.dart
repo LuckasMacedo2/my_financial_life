@@ -49,7 +49,7 @@ class AppDrawer extends StatelessWidget {
             title: Text('Compras/Dívidas'),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(
-                AppRoutes.PURCHASE_LIST,
+                AppRoutes.PURCHASE_HEADER_LIST,
               );
             },
           ),

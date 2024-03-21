@@ -4,6 +4,7 @@ import 'package:my_financial_life/pages/category/purchase_category_page.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_list.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_page.dart';
 import 'package:my_financial_life/pages/home_page.dart';
+import 'package:my_financial_life/pages/purchase/purchase_header_page.dart';
 import 'package:my_financial_life/pages/purchase/purchase_list_page.dart';
 import 'package:my_financial_life/pages/purchase/purchase_page.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.CATEGORY_LIST: (ctx) => CategoryListPage(),
           AppRoutes.PURCHASE_FORM: (ctx) => PurchasePage(),
           AppRoutes.PURCHASE_LIST: (ctx) => PurchaseListPage(),
+          AppRoutes.PURCHASE_HEADER_LIST: (ctx) => PurchaseHeaderPage(),
         },
       ),
     );

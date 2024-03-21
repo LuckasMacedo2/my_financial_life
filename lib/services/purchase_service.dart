@@ -21,7 +21,7 @@ class PurchaseService with ChangeNotifier {
 
   List<PurchaseHeader> _itemsHeader = [];
   List<PurchaseHeader> get itemsHeader => [..._itemsHeader];
-  int get _itemsHeaderCount {
+  int get itemsHeaderCount {
     return _itemsHeader.length;
   }
 
@@ -96,6 +96,7 @@ class PurchaseService with ChangeNotifier {
     });
     _items.sort((a, b) => a.date.compareTo(b.date));
     _setPurchaseHeader();
+    _itemsHeader.sort((a, b) => b.installmentsQuantity.compareTo(a.installmentsQuantity));
     notifyListeners();
   }
 
@@ -115,6 +116,7 @@ class PurchaseService with ChangeNotifier {
           notPaidValue: sumPurchasesNotPaidByBillId(purchases),
           description: groupedPurchases[i].description,
           installmentsQuantity: purchases.length,
+          installmentsPaidQuantity: countPurchasesPaidByBillId(purchases),
           startDate: getMinimumDate(purchases),
           nextPayDate: geNextPaidDate(purchases),
           categoryId: groupedPurchases[i].categoryId,
