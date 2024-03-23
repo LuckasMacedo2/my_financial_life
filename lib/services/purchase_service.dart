@@ -25,6 +25,9 @@ class PurchaseService with ChangeNotifier {
     return _itemsHeader.length;
   }
 
+  List<PurchaseHeader> get purchaseHeaderNotPaid =>
+      _itemsHeader.where((purc) => !purc.fullPaid).toList();
+
   double sumValues() {
     double total = 0.0;
     _items.forEach((purc) {

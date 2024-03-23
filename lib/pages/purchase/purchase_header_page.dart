@@ -3,6 +3,7 @@ import 'package:my_financial_life/components/Item/purchase_item_header.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
 import 'package:my_financial_life/components/filter.dart';
 import 'package:my_financial_life/components/floating_sum.dart';
+import 'package:my_financial_life/models/purchase_header.dart';
 import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:my_financial_life/utils/formatter.dart';
@@ -17,7 +18,7 @@ class PurchaseHeaderPage extends StatefulWidget {
 
 class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
   bool _expanded = false;
-  bool _filterPaid = false;
+  bool _filterPaid = true;
 
   Future<void> _refreshPurchases(BuildContext context) async {
     return Provider.of<PurchaseService>(
@@ -36,7 +37,8 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size.width * 0.25;
-    final PurchaseService purchases = Provider.of(context);
+    final PurchaseService provider = Provider.of(context);
+    final List<PurchaseHeader> purchases = _filterPaid ? provider.purchaseHeaderNotPaid : provider.itemsHeader;
 
     return Scaffold(
       appBar: AppBar(
@@ -66,16 +68,24 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
               left: 0,
               right: 0,
               child: FilterWidget(
-                child: Switch(onChanged: (bool neewValue) {
-                  setState(() {
-                    _filterPaid = neewValue;
-                  });
-                }, value: _filterPaid,),
+                child: Row(
+                  children: [
+                    Text('Filtrar somente não pagos?'),
+                    SizedBox(width: 20,),
+                    Switch(
+                      onChanged: (bool neewValue) {
+                        setState(() {
+                          _filterPaid = neewValue;
+                        });
+                      },
+                      value: _filterPaid,
+                    ),
+                  ],
+                ),
                 onExpandedChanged: (bool expanded) {
                   // Aqui você pode lidar com a mudança em _expanded
                   setState(() {
-                                      _expanded = expanded;
-
+                    _expanded = expanded;
                   });
                 },
               ),
@@ -86,11 +96,11 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
               left: 0,
               right: 0,
               child: ListView.builder(
-                itemCount: purchases.itemsHeader.length,
+                itemCount: purchases.length,
                 itemBuilder: (ctx, i) => Column(
                   children: [
                     PurchaseHeaderItem(
-                      purchases.itemsHeader[i],
+                      purchases[i],
                     ),
                   ],
                 ),
@@ -100,13 +110,13 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
               deviceSize: deviceSize,
               children: [
                 Text(
-                  'Total: ${Formatter().formatMoney(purchases.sumValues())}',
+                  'Total: ${Formatter().formatMoney(provider.sumValues())}',
                 ),
                 Text(
-                  'Total a pagar: ${Formatter().formatMoney(purchases.sumNotPaid())}',
+                  'Total a pagar: ${Formatter().formatMoney(provider.sumNotPaid())}',
                 ),
                 Text(
-                  'Já pago: ${Formatter().formatMoney(purchases.diff())}',
+                  'Já pago: ${Formatter().formatMoney(provider.diff())}',
                 ),
               ],
             ),
