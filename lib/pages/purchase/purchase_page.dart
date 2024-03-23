@@ -67,7 +67,7 @@ class _PurchasePageState extends State<PurchasePage> {
         _isEdition = true;
         // TODO: Load credit card and category
         //_selectedCategory = purchase.category;
-        //_selectedCreditCard = purchase.cre
+        //_selectedCreditCard = purchase.cred
       }
     }
   }
@@ -114,6 +114,15 @@ class _PurchasePageState extends State<PurchasePage> {
     final widthTextForm = MediaQuery.of(context).size.width * 0.30;
     final CreditCardService creditCards = Provider.of(context);
     final PurchaseCategoryService categories = Provider.of(context);
+
+    if (_formData['categoryId'] != null && _formData['categoryId'] != "" && categories.items.length > 0)
+      _selectedCategory = categories.items
+          .where((c) => c.id == _formData['categoryId'].toString())
+          .first;
+    if (_formData['creditCardId'] != null && _formData['creditCardId'] != "" && creditCards.items.length > 0)
+      _selectedCreditCard = creditCards.items
+          .where((c) => c.id == _formData['creditCardId'].toString())
+          .first;
 
     return Scaffold(
       appBar: AppBar(
@@ -218,7 +227,7 @@ class _PurchasePageState extends State<PurchasePage> {
                             _isPaid = value!;
                           });
                         },
-                      ), 
+                      ),
                       Row(
                         children: [
                           SizedBox(
@@ -237,8 +246,8 @@ class _PurchasePageState extends State<PurchasePage> {
                       Container(
                         width: widthTextForm,
                         child: DatePicker(
+                          initialDate: _selectedDate,
                           onDateSelected: (DateTime date) {
-                            // Faça qualquer coisa que você deseja com a cor selecionada, por exemplo, atualizar o estado do componente pai
                             setState(
                               () {
                                 _selectedDate = date;
@@ -258,7 +267,7 @@ class _PurchasePageState extends State<PurchasePage> {
                             border: InputBorder.none,
                           ),
                           child: DropdownButtonFormField(
-                            value: _selectedCreditCard,
+                            value: _selectedCreditCard != null ? _selectedCreditCard : null,
                             isExpanded: true,
                             items: creditCards.items.map(
                               (CreditCard item) {
@@ -294,7 +303,7 @@ class _PurchasePageState extends State<PurchasePage> {
                             border: InputBorder.none,
                           ),
                           child: DropdownButtonFormField<PurchaseCategory?>(
-                            value: _selectedCategory,
+                            value:  _selectedCategory != null ? _selectedCategory : null,
                             isExpanded: true,
                             items: categories.items.map(
                               (PurchaseCategory item) {

@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 class DatePicker extends StatefulWidget {
   @override
   _DatePickerState createState() => _DatePickerState();
+  DateTime? initialDate = null;
 
   final Function(DateTime) onDateSelected;
-  DatePicker({Key? key, required this.onDateSelected}) : super(key: key);
+  DatePicker({Key? key, required this.onDateSelected, this.initialDate}) : super(key: key);
 }
 
 class _DatePickerState extends State<DatePicker> {
@@ -34,6 +35,7 @@ class _DatePickerState extends State<DatePicker> {
     super.initState();
     // Inicialize o formato de data para o idioma desejado
     initializeDateFormatting('pt_BR', null);
+    selectedDate = widget.initialDate ?? DateTime.now();
   }
 
   @override

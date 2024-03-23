@@ -17,7 +17,7 @@ class PurchaseHeaderItem extends StatelessWidget {
       child: Card(
         elevation: 5,
         child: Container(
-          padding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
