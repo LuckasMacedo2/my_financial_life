@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_financial_life/data/cache_manager.dart';
 import 'package:my_financial_life/exceptions/http_exception.dart';
+import 'package:my_financial_life/models/filters/filter.dart';
 import 'package:my_financial_life/models/purchase.dart';
 import 'package:my_financial_life/models/purchase_header.dart';
+import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/utils/cache_constants.dart';
 import 'package:my_financial_life/utils/constants.dart';
 import 'package:my_financial_life/utils/utils.dart';
@@ -23,6 +26,64 @@ class PurchaseService with ChangeNotifier {
   List<PurchaseHeader> get itemsHeader => [..._itemsHeader];
   int get itemsHeaderCount {
     return _itemsHeader.length;
+  }
+
+  List<Purchase> filterByDate(Filter filter) {
+    if (filter.startDate == null && filter.finalDate == null) {
+      return _items;
+    } else if (filter.startDate == null) {
+      return _items
+          .where((item) =>
+              (item.date is DateTime && item.date.isBefore(filter.finalDate!)))
+          .toList();
+    } else if (filter.finalDate == null) {
+      return _items
+          .where((item) =>
+              (item.date is DateTime && item.date.isAfter(filter.startDate!)))
+          .toList();
+    } else {
+      return _items
+          .where((item) => (item.date is DateTime &&
+              item.date.isAfter(filter.startDate!) &&
+              item.date.isBefore(filter.finalDate!)))
+          .toList();
+    }
+  }
+
+  Future<List<PieChartSectionData>> getPurchasesSumByCategories(Filter filter) async {
+    List<Purchase> purchaseFiltered = filterByDate(filter);
+    List<PieChartSectionData> data = [];
+
+    var provider = new  PurchaseCategoryService();
+    await provider.loadPurchaseCategory();
+
+    var groupedPurchases = getAllDistinctCategories();
+
+    for (int i = 0; i < groupedPurchases.length; i++) {
+      data.add(PieChartSectionData(
+          value: sumPurchases(getPurchasesByCategoryId(
+              groupedPurchases[i].categoryId, purchaseFiltered)),
+          color: provider.items.where((c) => c.id == groupedPurchases[i].categoryId).first.color,//Colors.cyan,
+          title: groupedPurchases[i].description));
+    }
+
+    return data;
+  }
+
+  List<Purchase> getPurchasesByCategoryId(
+      String categoryId, List<Purchase> purchaseFiltered) {
+    return purchaseFiltered
+        .where((purchase) => purchase.categoryId == categoryId)
+        .toList();
+  }
+
+  getAllDistinctCategories() {
+    Map<String, Purchase> distinctMap = {};
+    for (var purchase in _items) {
+      distinctMap.putIfAbsent(purchase.categoryId, () => purchase);
+    }
+
+    return distinctMap.values.toList();
   }
 
   List<PurchaseHeader> get purchaseHeaderNotPaid =>
@@ -99,7 +160,8 @@ class PurchaseService with ChangeNotifier {
     });
     _items.sort((a, b) => a.date.compareTo(b.date));
     _setPurchaseHeader();
-    _itemsHeader.sort((a, b) => b.installmentsQuantity.compareTo(a.installmentsQuantity));
+    _itemsHeader.sort(
+        (a, b) => b.installmentsQuantity.compareTo(a.installmentsQuantity));
     notifyListeners();
   }
 
@@ -115,8 +177,8 @@ class PurchaseService with ChangeNotifier {
       _itemsHeader.add(
         PurchaseHeader(
           id: groupedPurchases[i].billId,
-          totalValue: sumPurchasesByBillId(purchases),
-          notPaidValue: sumPurchasesNotPaidByBillId(purchases),
+          totalValue: sumPurchases(purchases),
+          notPaidValue: sumPurchasesNotPaid(purchases),
           description: groupedPurchases[i].description,
           installmentsQuantity: purchases.length,
           installmentsPaidQuantity: countPurchasesPaidByBillId(purchases),
@@ -178,7 +240,7 @@ class PurchaseService with ChangeNotifier {
     return _items.where((purchase) => purchase.billId == billId).toList();
   }
 
-  double sumPurchasesByBillId(List<Purchase> purchases) {
+  double sumPurchases(List<Purchase> purchases) {
     double total = 0.0;
     purchases.forEach(
       (purc) {
@@ -188,7 +250,7 @@ class PurchaseService with ChangeNotifier {
     return total;
   }
 
-  double sumPurchasesNotPaidByBillId(List<Purchase> purchases) {
+  double sumPurchasesNotPaid(List<Purchase> purchases) {
     double total = 0.0;
     purchases.forEach(
       (purc) {

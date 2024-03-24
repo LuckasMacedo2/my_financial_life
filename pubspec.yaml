@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: ^2.0.8
   shared_preferences_web: ^2.0.0
   uuid: ^3.0.4
+  fl_chart: ^0.66.2
 
 
   # The following adds the Cupertino Icons font to your application.
