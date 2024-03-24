@@ -105,14 +105,12 @@ class _HomePageState extends State<HomePage> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
+                                  Column(
                                     children: [
-                                      Expanded(
-                                        child: PieChartComponent(
-                                          pieChartData: pieChartData,
-                                        ),
+                                      PieChartComponent(
+                                        pieChartData: pieChartData,
                                       ),
-                                      Expanded(child: Chart(pieChartData: pieChartData, sum: _sumValues())),
+                                      Chart(pieChartData: pieChartData, sum: _sumValues()),
                                     ],
                                   ),
                                   SizedBox(height: 20,),

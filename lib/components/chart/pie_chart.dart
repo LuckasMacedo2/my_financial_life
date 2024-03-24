@@ -15,7 +15,7 @@ class _PieChartComponentState extends State<PieChartComponent> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 2,
+      aspectRatio: 4,
       child: PieChart(
         PieChartData(
           sections: widget.pieChartData,
