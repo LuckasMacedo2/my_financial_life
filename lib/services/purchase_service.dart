@@ -168,6 +168,7 @@ class PurchaseService with ChangeNotifier {
       );
     });
     _items.sort((a, b) => a.date.compareTo(b.date));
+    _itemsHeader.clear();
     _setPurchaseHeader();
     _itemsHeader.sort(
         (a, b) => b.installmentsQuantity.compareTo(a.installmentsQuantity));

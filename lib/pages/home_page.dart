@@ -9,6 +9,7 @@ import 'package:my_financial_life/models/purchase.dart';
 import 'package:my_financial_life/models/purchase_header.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/services/purchase_service.dart';
+import 'package:my_financial_life/utils/app_routes.dart';
 import 'package:my_financial_life/utils/formatter.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Provider.of<PurchaseService>(
       context,
@@ -44,10 +44,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    //final PurchaseService provider = Provider.of(context);
-    //final List<Purchase> purchases = provider.items;
-
-    //double sum = _sumValues();
 
     return Scaffold(
       appBar: AppBar(
@@ -87,8 +83,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Consumer<PurchaseService>(
-                      builder:
-                          (BuildContext context, provider, Widget? child) {
+                      builder: (BuildContext context, provider, Widget? child) {
                         return FutureBuilder(
                           future:
                               provider.getPurchasesSumByCategories(Filter()),
@@ -110,21 +105,45 @@ class _HomePageState extends State<HomePage> {
                                       PieChartComponent(
                                         pieChartData: pieChartData,
                                       ),
-                                      Chart(pieChartData: pieChartData, sum: _sumValues()),
+                                      Chart(
+                                          pieChartData: pieChartData,
+                                          sum: _sumValues()),
                                     ],
                                   ),
-                                  SizedBox(height: 20,),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
                                   Divider(),
                                   Padding(
                                     padding: const EdgeInsets.all(20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Resumo dos dados'),
-                                        SizedBox(height: 5,),
-                                        Text('Período: ${DateFormat('dd/MM/yyyy').format(widget._filter?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filter?.finalDate! ?? DateTime.now())}'),
-                                        SizedBox(height: 5,),
-                                        Text('Total: ${Formatter().formatMoney(_sumValues())}'),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text('Resumo dos dados'),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                                'Período: ${DateFormat('dd/MM/yyyy').format(widget._filter?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filter?.finalDate! ?? DateTime.now())}'),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                                'Total: ${Formatter().formatMoney(_sumValues())}'),
+                                          ],
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pushNamed(
+                                                AppRoutes.PURCHASE_HEADER_LIST);
+                                          },
+                                          icon: Icon(Icons.list),
+                                        ),
                                       ],
                                     ),
                                   ),

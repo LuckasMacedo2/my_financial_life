@@ -83,7 +83,6 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
                   ],
                 ),
                 onExpandedChanged: (bool expanded) {
-                  // Aqui você pode lidar com a mudança em _expanded
                   setState(() {
                     _expanded = expanded;
                   });
@@ -91,7 +90,7 @@ class _PurchaseHeaderPageState extends State<PurchaseHeaderPage> {
               ),
             ),
             Positioned(
-              top: _expanded ? 130 : 80, // Ajuste conforme necessário
+              top: _expanded ? 130 : 80,
               bottom: 0,
               left: 0,
               right: 0,
