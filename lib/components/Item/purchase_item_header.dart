@@ -78,7 +78,7 @@ class PurchaseHeaderItem extends StatelessWidget {
               Divider(),
               SizedBox(height: 10),
               Text(
-                'Parcelas ${purchaseHeader.installmentsPaidQuantity.toString()}/${purchaseHeader.installmentsQuantity.toString()} ${purchaseHeader.nextPayDate != null ? '- Próximo pagamento ${DateFormat('dd/MM/yyyy').format(purchaseHeader.startDate)}' : ''}',
+                'Parcelas ${purchaseHeader.installmentsPaidQuantity.toString()}/${purchaseHeader.installmentsQuantity.toString()} ${purchaseHeader.nextPayDate != null ? '- Próximo pagamento ${DateFormat('dd/MM/yyyy').format(purchaseHeader.nextPayDate!)}' : ''}',
                 style: TextStyle(
                     fontSize: Theme.of(context).textTheme.bodyLarge!.fontSize),
               ),

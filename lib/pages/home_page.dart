@@ -50,116 +50,118 @@ class _HomePageState extends State<HomePage> {
         title: Text('Bem vindo!'),
       ),
       drawer: AppDrawer(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: double.infinity,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Teste',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: double.infinity,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Teste',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Container(
-            width: double.infinity,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  //crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Consumer<PurchaseService>(
-                      builder: (BuildContext context, provider, Widget? child) {
-                        return FutureBuilder(
-                          future:
-                              provider.getPurchasesSumByCategories(Filter()),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else if (!snapshot.hasData) {
-                              return Text('No data available');
-                            } else {
-                              pieChartData = snapshot.data!;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    children: [
-                                      PieChartComponent(
-                                        pieChartData: pieChartData,
-                                      ),
-                                      Chart(
-                                          pieChartData: pieChartData,
-                                          sum: _sumValues()),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  Divider(),
-                                  Padding(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+            Container(
+              width: double.infinity,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    //crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Consumer<PurchaseService>(
+                        builder: (BuildContext context, provider, Widget? child) {
+                          return FutureBuilder(
+                            future:
+                                provider.getPurchasesSumByCategories(Filter()),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData) {
+                                return Text('No data available');
+                              } else {
+                                pieChartData = snapshot.data!;
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text('Resumo dos dados'),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Text(
-                                                'Período: ${DateFormat('dd/MM/yyyy').format(widget._filter?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filter?.finalDate! ?? DateTime.now())}'),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
-                                            Text(
-                                                'Total: ${Formatter().formatMoney(_sumValues())}'),
-                                          ],
+                                        PieChartComponent(
+                                          pieChartData: pieChartData,
                                         ),
-                                        IconButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pushNamed(
-                                                AppRoutes.PURCHASE_HEADER_LIST);
-                                          },
-                                          icon: Icon(Icons.list),
-                                        ),
+                                        Chart(
+                                            pieChartData: pieChartData,
+                                            sum: _sumValues()),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ],
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Divider(),
+                                    Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text('Resumo dos dados'),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                  'Período: ${DateFormat('dd/MM/yyyy').format(widget._filter?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filter?.finalDate! ?? DateTime.now())}'),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                  'Total: ${Formatter().formatMoney(_sumValues())}'),
+                                            ],
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pushNamed(
+                                                  AppRoutes.PURCHASE_HEADER_LIST);
+                                            },
+                                            icon: Icon(Icons.list),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

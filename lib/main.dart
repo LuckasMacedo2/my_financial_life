@@ -3,11 +3,14 @@ import 'package:my_financial_life/pages/category/purchase_category_list_page.dar
 import 'package:my_financial_life/pages/category/purchase_category_page.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_list.dart';
 import 'package:my_financial_life/pages/credit_card/credit_card_page.dart';
+import 'package:my_financial_life/pages/earning/earning_list_page.dart';
+import 'package:my_financial_life/pages/earning/earning_page.dart';
 import 'package:my_financial_life/pages/home_page.dart';
 import 'package:my_financial_life/pages/purchase/purchase_header_page.dart';
 import 'package:my_financial_life/pages/purchase/purchase_list_page.dart';
 import 'package:my_financial_life/pages/purchase/purchase_page.dart';
 import 'package:my_financial_life/services/credit_card_service.dart';
+import 'package:my_financial_life/services/earning_service.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/services/purchase_service.dart';
 import 'package:my_financial_life/utils/app_routes.dart';
@@ -34,6 +37,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<PurchaseService>(
           create: (_) => PurchaseService(),
         ),
+        ChangeNotifierProvider<EarningService>(
+          create: (_) => EarningService(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -43,13 +49,19 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system, 
         routes: {
           AppRoutes.HOME_PAGE: (ctx) => HomePage(),
+
           AppRoutes.CREDIT_CARD_FORM: (ctx) => CreditCardPage(),
           AppRoutes.CREDIT_CARD_LIST: (ctx) => CreditCardListPage(),
+
           AppRoutes.CATEGORY_FORM: (ctx) => CategoryPage(),
           AppRoutes.CATEGORY_LIST: (ctx) => CategoryListPage(),
+
           AppRoutes.PURCHASE_FORM: (ctx) => PurchasePage(),
           AppRoutes.PURCHASE_LIST: (ctx) => PurchaseListPage(),
           AppRoutes.PURCHASE_HEADER_LIST: (ctx) => PurchaseHeaderPage(),
+
+          AppRoutes.EARNING_FORM: (ctx) => EarningPage(),
+          AppRoutes.EARNING_LIST: (ctx) => EarningListPage(),
         },
       ),
     );

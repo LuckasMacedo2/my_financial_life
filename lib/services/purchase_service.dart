@@ -59,9 +59,9 @@ class PurchaseService with ChangeNotifier {
     var provider = new PurchaseCategoryService();
     await provider.loadPurchaseCategory();
 
-    var groupedPurchases = getAllDistinctCategories();
+    var groupedPurchases = getAllDistinctCategories(purchaseFiltered);
 
-    for (int i = 0; i < groupedPurchases.length; i++) {
+    for (int i =0; i < groupedPurchases.length; i++) {
       PurchaseCategory category = provider.items
           .where((c) => c.id == groupedPurchases[i].categoryId)
           .first;
@@ -70,7 +70,7 @@ class PurchaseService with ChangeNotifier {
         PieChartSectionData(
           value: sumPurchases(getPurchasesByCategoryId(
               groupedPurchases[i].categoryId, purchaseFiltered)),
-          color: category.color, //Colors.cyan,
+          color: category.color, 
           title: category.name,
         ),
       );
@@ -80,15 +80,15 @@ class PurchaseService with ChangeNotifier {
   }
 
   List<Purchase> getPurchasesByCategoryId(
-      String categoryId, List<Purchase> purchaseFiltered) {
-    return purchaseFiltered
+      String categoryId, List<Purchase> purchases) {
+    return purchases
         .where((purchase) => purchase.categoryId == categoryId)
         .toList();
   }
 
-  getAllDistinctCategories() {
+  getAllDistinctCategories(List<Purchase> purchases) {
     Map<String, Purchase> distinctMap = {};
-    for (var purchase in _items) {
+    for (var purchase in purchases) {
       distinctMap.putIfAbsent(purchase.categoryId, () => purchase);
     }
 
@@ -203,7 +203,7 @@ class PurchaseService with ChangeNotifier {
 
   getMinimumDate(List<Purchase> purchases) {
     if (purchases.length == 0) {
-      return null; // Retorna null se a lista estiver vazia
+      return null; 
     }
 
     DateTime minDate = purchases[0].date;
@@ -213,20 +213,18 @@ class PurchaseService with ChangeNotifier {
         minDate = purchase.date;
       }
     });
-
+ 
     return minDate;
   }
 
   DateTime? geNextPaidDate(List<Purchase> purchases) {
-    // Filtra as compras onde paid é true
     List<Purchase> paidPurchases =
         purchases.where((purchase) => !purchase.paid).toList();
 
     if (paidPurchases.isEmpty) {
-      return null; // Retorna null se não houver compras pagas na lista
+      return null; 
     }
 
-    // Encontra a data mínima entre as compras pagas
     DateTime minPaidDate = paidPurchases[0].date;
     for (var purchase in paidPurchases) {
       if (purchase.date.isBefore(minPaidDate)) {

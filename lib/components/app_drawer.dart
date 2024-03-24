@@ -54,6 +54,16 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           Divider(),
+          ListTile(
+            leading: Icon(Icons.monetization_on),
+            title: Text('Ganhos'),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(
+                AppRoutes.EARNING_LIST,
+              );
+            },
+          ),
+          Divider(),
         ],
       ),
     );

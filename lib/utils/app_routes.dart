@@ -9,5 +9,8 @@ class AppRoutes {
 
   static const PURCHASE_FORM = '/purchase-detail';
   static const PURCHASE_LIST = '/purchase-list'; 
-  static const PURCHASE_HEADER_LIST = '/purchase-header'; 
+  static const PURCHASE_HEADER_LIST = '/purchase-header';
+
+  static const EARNING_FORM = '/earning-detail';
+  static const EARNING_LIST = '/earning-list';  
 }
