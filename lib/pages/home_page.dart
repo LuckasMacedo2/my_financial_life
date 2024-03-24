@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
 import 'package:my_financial_life/components/chart/chart.dart';
 import 'package:my_financial_life/components/chart/pie_chart.dart';
@@ -8,16 +9,21 @@ import 'package:my_financial_life/models/purchase.dart';
 import 'package:my_financial_life/models/purchase_header.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/services/purchase_service.dart';
+import 'package:my_financial_life/utils/formatter.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({super.key});
+
+  Filter? _filter = Filter();
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  List<PieChartSectionData> pieChartData = [];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -28,12 +34,20 @@ class _HomePageState extends State<HomePage> {
     ).loadPurchase();
   }
 
+  double _sumValues() {
+    double sum = 0.0;
+    pieChartData.forEach((p) {
+      sum += p.value;
+    });
+    return sum;
+  }
+
   @override
   Widget build(BuildContext context) {
     //final PurchaseService provider = Provider.of(context);
     //final List<Purchase> purchases = provider.items;
 
-    List<PieChartSectionData> pieChartData = [];
+    //double sum = _sumValues();
 
     return Scaffold(
       appBar: AppBar(
@@ -88,14 +102,34 @@ class _HomePageState extends State<HomePage> {
                               return Text('No data available');
                             } else {
                               pieChartData = snapshot.data!;
-                              return Row(
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: PieChartComponent(
-                                      pieChartData: pieChartData,
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: PieChartComponent(
+                                          pieChartData: pieChartData,
+                                        ),
+                                      ),
+                                      Expanded(child: Chart(pieChartData: pieChartData, sum: _sumValues())),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20,),
+                                  Divider(),
+                                  Padding(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Resumo dos dados'),
+                                        SizedBox(height: 5,),
+                                        Text('Período: ${DateFormat('dd/MM/yyyy').format(widget._filter?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filter?.finalDate! ?? DateTime.now())}'),
+                                        SizedBox(height: 5,),
+                                        Text('Total: ${Formatter().formatMoney(_sumValues())}'),
+                                      ],
                                     ),
                                   ),
-                                  Expanded(child: Chart(pieChartData: pieChartData)),
                                 ],
                               );
                             }
