@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                                       pieChartData: pieChartData,
                                     ),
                                   ),
-                                  //Expanded(child: Chart(pieChartData: pieChartData)),
+                                  Expanded(child: Chart(pieChartData: pieChartData)),
                                 ],
                               );
                             }

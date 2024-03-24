@@ -8,6 +8,7 @@ import 'package:my_financial_life/data/cache_manager.dart';
 import 'package:my_financial_life/exceptions/http_exception.dart';
 import 'package:my_financial_life/models/filters/filter.dart';
 import 'package:my_financial_life/models/purchase.dart';
+import 'package:my_financial_life/models/purchase_category.dart';
 import 'package:my_financial_life/models/purchase_header.dart';
 import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/utils/cache_constants.dart';
@@ -50,21 +51,29 @@ class PurchaseService with ChangeNotifier {
     }
   }
 
-  Future<List<PieChartSectionData>> getPurchasesSumByCategories(Filter filter) async {
+  Future<List<PieChartSectionData>> getPurchasesSumByCategories(
+      Filter filter) async {
     List<Purchase> purchaseFiltered = filterByDate(filter);
     List<PieChartSectionData> data = [];
 
-    var provider = new  PurchaseCategoryService();
+    var provider = new PurchaseCategoryService();
     await provider.loadPurchaseCategory();
 
     var groupedPurchases = getAllDistinctCategories();
 
     for (int i = 0; i < groupedPurchases.length; i++) {
-      data.add(PieChartSectionData(
+      PurchaseCategory category = provider.items
+          .where((c) => c.id == groupedPurchases[i].categoryId)
+          .first;
+
+      data.add(
+        PieChartSectionData(
           value: sumPurchases(getPurchasesByCategoryId(
               groupedPurchases[i].categoryId, purchaseFiltered)),
-          color: provider.items.where((c) => c.id == groupedPurchases[i].categoryId).first.color,//Colors.cyan,
-          title: groupedPurchases[i].description));
+          color: category.color, //Colors.cyan,
+          title: category.name,
+        ),
+      );
     }
 
     return data;

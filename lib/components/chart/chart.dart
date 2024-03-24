@@ -7,8 +7,17 @@ class Chart extends StatelessWidget {
 
   Chart({super.key, required this.pieChartData});
 
+  double _sumValues() {
+    double sum = 0.0;
+    pieChartData.forEach((p) {
+      sum += p.value;
+    });
+    return sum;
+  }
+
   @override
   Widget build(BuildContext context) {
+    double sum = _sumValues();
     return Card(
       elevation: 6,
       margin: EdgeInsets.all(20),
@@ -21,9 +30,12 @@ class Chart extends StatelessWidget {
               return Flexible(
                 fit: FlexFit.tight,
                 child: ChartBar(
-                    label: tr.title.toString(),
-                    value: double.tryParse(tr.value.toString()),
-                    pecentage: 0.1),
+                  label: '${tr.title.toString()}',
+                  subLabel:  '${((tr.value / sum)*100).toStringAsFixed(2)}%',
+                  value: double.tryParse(tr.value.toString()),
+                  percentage: tr.value / sum,
+                  color: tr.color,
+                ),
               );
             },
           ).toList(),
