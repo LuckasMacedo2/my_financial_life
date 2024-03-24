@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_financial_life/exceptions/http_exception.dart';
 import 'package:my_financial_life/models/credit_cart.dart';
 import 'package:my_financial_life/models/earning.dart';
+import 'package:my_financial_life/models/filters/filter.dart';
+import 'package:my_financial_life/models/purchase_category.dart';
+import 'package:my_financial_life/services/purchase_category_service.dart';
 import 'package:my_financial_life/utils/constants.dart';
 
 class EarningService with ChangeNotifier {
@@ -13,6 +17,82 @@ class EarningService with ChangeNotifier {
   List<Earning> get items => [..._items];
   int get itemsCount {
     return _items.length;
+  }
+
+  List<Earning> filterByDate(Filter filter) {
+    if (filter.startDate == null && filter.finalDate == null) {
+      return _items;
+    } else if (filter.startDate == null) {
+      return _items
+          .where((item) =>
+              (item.date is DateTime && item.date.isBefore(filter.finalDate!)))
+          .toList();
+    } else if (filter.finalDate == null) {
+      return _items
+          .where((item) =>
+              (item.date is DateTime && item.date.isAfter(filter.startDate!)))
+          .toList();
+    } else {
+      return _items
+          .where((item) => (item.date is DateTime &&
+              item.date.isAfter(filter.startDate!) &&
+              item.date.isBefore(filter.finalDate!)))
+          .toList();
+    }
+  }
+
+  Future<List<PieChartSectionData>> getEarningsSumByCategories(
+      Filter filter) async {
+    List<Earning> purchaseFiltered = filterByDate(filter);
+    List<PieChartSectionData> data = [];
+
+    var provider = new PurchaseCategoryService();
+    await provider.loadPurchaseCategory();
+
+    var groupedEarnings = getAllDistinctCategories(purchaseFiltered);
+
+    for (int i =0; i < groupedEarnings.length; i++) {
+      PurchaseCategory category = provider.items
+          .where((c) => c.id == groupedEarnings[i].categoryId)
+          .first;
+
+      data.add(
+        PieChartSectionData(
+          value: sumEarnings(getEarningsByCategoryId(
+              groupedEarnings[i].categoryId, purchaseFiltered)),
+          color: category.color, 
+          title: category.name,
+        ),
+      );
+    }
+
+    return data;
+  }
+
+  double sumEarnings(List<Earning> purchases) {
+    double total = 0.0;
+    purchases.forEach(
+      (purc) {
+        total += purc.value;
+      },
+    );
+    return total;
+  }
+
+  List<Earning> getEarningsByCategoryId(
+      String categoryId, List<Earning> purchases) {
+    return purchases
+        .where((purchase) => purchase.categoryId == categoryId)
+        .toList();
+  }
+
+  getAllDistinctCategories(List<Earning> purchases) {
+    Map<String, Earning> distinctMap = {};
+    for (var purchase in purchases) {
+      distinctMap.putIfAbsent(purchase.categoryId, () => purchase);
+    }
+
+    return distinctMap.values.toList();
   }
 
   double sum() {
