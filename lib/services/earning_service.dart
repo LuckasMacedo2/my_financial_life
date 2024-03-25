@@ -20,25 +20,10 @@ class EarningService with ChangeNotifier {
   }
 
   List<Earning> filterByDate(Filter filter) {
-    if (filter.startDate == null && filter.finalDate == null) {
-      return _items;
-    } else if (filter.startDate == null) {
-      return _items
-          .where((item) =>
-              (item.date is DateTime && item.date.isBefore(filter.finalDate!)))
-          .toList();
-    } else if (filter.finalDate == null) {
-      return _items
-          .where((item) =>
-              (item.date is DateTime && item.date.isAfter(filter.startDate!)))
-          .toList();
-    } else {
-      return _items
-          .where((item) => (item.date is DateTime &&
-              item.date.isAfter(filter.startDate!) &&
-              item.date.isBefore(filter.finalDate!)))
-          .toList();
-    }
+    return _items
+        .where((item) => (item.date.compareTo(filter.startDate!) >= 0 &&
+            item.date.compareTo(filter.finalDate!) <= 0))
+        .toList();
   }
 
   Future<List<PieChartSectionData>> getEarningsSumByCategories(
@@ -51,7 +36,7 @@ class EarningService with ChangeNotifier {
 
     var groupedEarnings = getAllDistinctCategories(purchaseFiltered);
 
-    for (int i =0; i < groupedEarnings.length; i++) {
+    for (int i = 0; i < groupedEarnings.length; i++) {
       PurchaseCategory category = provider.items
           .where((c) => c.id == groupedEarnings[i].categoryId)
           .first;
@@ -60,7 +45,7 @@ class EarningService with ChangeNotifier {
         PieChartSectionData(
           value: sumEarnings(getEarningsByCategoryId(
               groupedEarnings[i].categoryId, purchaseFiltered)),
-          color: category.color, 
+          color: category.color,
           title: category.name,
         ),
       );
@@ -130,16 +115,19 @@ class EarningService with ChangeNotifier {
 
   Future<void> saveEarning(Map<String, Object> data) {
     bool hasId = data['id'] != null;
-    print('>>' + (data['profit'].toString() == '').toString() + '>${data['profit'].toString().isEmpty}<');
+    print('>>' +
+        (data['profit'].toString() == '').toString() +
+        '>${data['profit'].toString().isEmpty}<');
     final earning = Earning(
-        id: hasId ? data['id'] as String : Random().nextDouble().toString(),
-        value: double.parse(data['value'].toString()),
-        date: DateTime.parse(data['date'].toString()),
-        description: data['description'] as String,
-        observation: data['observation'] as String,
-        categoryId: data['categoryId'] as String,
-        profit: double.parse(data['profit'].toString().isEmpty ? '0' : data['profit'].toString()),
-        );
+      id: hasId ? data['id'] as String : Random().nextDouble().toString(),
+      value: double.parse(data['value'].toString()),
+      date: DateTime.parse(data['date'].toString()),
+      description: data['description'] as String,
+      observation: data['observation'] as String,
+      categoryId: data['categoryId'] as String,
+      profit: double.parse(
+          data['profit'].toString().isEmpty ? '0' : data['profit'].toString()),
+    );
 
     if (hasId)
       return updateEarning(earning);
@@ -152,8 +140,7 @@ class EarningService with ChangeNotifier {
 
     if (index >= 0) {
       await http.patch(
-        Uri.parse(
-            '${Constants.EARNING_BASE_URL}/${earning.id}.json'),
+        Uri.parse('${Constants.EARNING_BASE_URL}/${earning.id}.json'),
         body: jsonEncode(
           {
             "value": earning.value,
@@ -200,7 +187,7 @@ class EarningService with ChangeNotifier {
           profit: earning.profit,
         ),
       );
-      notifyListeners(); 
+      notifyListeners();
     } catch (error) {
       print(error);
     }
@@ -214,8 +201,7 @@ class EarningService with ChangeNotifier {
       notifyListeners();
 
       final response = await http.delete(
-        Uri.parse(
-            '${Constants.EARNING_BASE_URL}/${earning.id}.json'),
+        Uri.parse('${Constants.EARNING_BASE_URL}/${earning.id}.json'),
       );
 
       if (response.statusCode >= 400) {

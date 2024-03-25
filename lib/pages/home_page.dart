@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_financial_life/components/app_drawer.dart';
 import 'package:my_financial_life/components/chart/chart.dart';
+import 'package:my_financial_life/components/chart/chart_card.dart';
 import 'package:my_financial_life/components/chart/pie_chart.dart';
 import 'package:my_financial_life/models/filters/filter.dart';
 import 'package:my_financial_life/models/purchase.dart';
@@ -16,6 +17,9 @@ import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
+
+  List<PieChartSectionData> pieChartDataPurchases = [];
+  List<PieChartSectionData> pieChartDataEarning = [];
 
   Filter? _filterPurchase = Filter(
       startDate: DateTime(DateTime.now().year, DateTime.now().month + 1, 1),
@@ -32,9 +36,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<PieChartSectionData> pieChartDataPurchases = [];
-  List<PieChartSectionData> pieChartDataEarning = [];
-
   @override
   void initState() {
     super.initState();
@@ -42,6 +43,11 @@ class _HomePageState extends State<HomePage> {
       context,
       listen: false,
     ).loadPurchase();
+
+    Provider.of<EarningService>(
+      context,
+      listen: false,
+    ).loadEarnings();
   }
 
   double _sumValues(List<PieChartSectionData> pieChartData) {
@@ -49,11 +55,13 @@ class _HomePageState extends State<HomePage> {
     pieChartData.forEach((p) {
       sum += p.value;
     });
+
     return sum;
   }
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       appBar: AppBar(
         title: Text('Bem vindo!'),
@@ -71,11 +79,45 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Teste',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Resumo dos dados',
+                              style: TextStyle(
+                                fontSize: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .fontSize,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                                'Ganhos no período ${DateFormat('dd/MM/yyyy').format(widget._filterEarning!.startDate!)} - ${DateFormat('dd/MM/yyyy').format(widget._filterEarning!.finalDate!)}  ${Formatter().formatMoney(_sumValues(widget.pieChartDataEarning))}'),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                                'Gastos no período ${DateFormat('dd/MM/yyyy').format(widget._filterPurchase!.startDate!)} - ${DateFormat('dd/MM/yyyy').format(widget._filterPurchase!.finalDate!)}  ${Formatter().formatMoney(_sumValues(widget.pieChartDataPurchases))}'),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Final:  ${Formatter().formatMoney(_sumValues(widget.pieChartDataEarning) - _sumValues(widget.pieChartDataPurchases))}',
+                              style: TextStyle(
+                                color: _sumValues(widget.pieChartDataEarning) -
+                                            _sumValues(
+                                                widget.pieChartDataPurchases) <
+                                        0
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ],
@@ -89,14 +131,14 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    //crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Consumer<PurchaseService>(
                         builder:
                             (BuildContext context, provider, Widget? child) {
                           return FutureBuilder(
-                            future: provider.getPurchasesSumByCategories(
+                            future: provider
+                                .getPurchasesSumByCategories(
                               widget._filterPurchase!,
                             ),
                             builder: (context, snapshot) {
@@ -108,79 +150,24 @@ class _HomePageState extends State<HomePage> {
                               } else if (!snapshot.hasData) {
                                 return Text('No data available');
                               } else {
-                                pieChartDataPurchases = snapshot.data!;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Text(
-                                        'Contas/Dívidas',
-                                        style: TextStyle(
-                                            fontSize: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium!
-                                                .fontSize),
-                                      ),
-                                    ),
-                                    pieChartDataPurchases.length == 0
-                                        ? Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child:
-                                                Text('Nenhum dado registrado'),
-                                          )
-                                        : Column(
-                                            children: [
-                                              PieChartComponent(
-                                                pieChartData:
-                                                    pieChartDataPurchases,
-                                              ),
-                                              Chart(
-                                                  pieChartData:
-                                                      pieChartDataPurchases,
-                                                  sum: _sumValues(
-                                                      pieChartDataPurchases)),
-                                            ],
-                                          ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Divider(),
-                                    Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Resumo dos dados'),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                  'Período: ${DateFormat('dd/MM/yyyy').format(widget._filterPurchase?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filterPurchase?.finalDate! ?? DateTime.now())}'),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                  'Total: ${Formatter().formatMoney(_sumValues(pieChartDataPurchases))}'),
-                                            ],
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pushNamed(
-                                                  AppRoutes
-                                                      .PURCHASE_HEADER_LIST);
-                                            },
-                                            icon: Icon(Icons.list),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                widget.pieChartDataPurchases = snapshot.data!;
+                                return ChartCard(
+                                  pieChartData: widget.pieChartDataPurchases,
+                                  filter: widget._filterPurchase!,
+                                  route: AppRoutes.PURCHASE_LIST,
+                                  total:
+                                      _sumValues(widget.pieChartDataPurchases),
+                                  title: 'Compras/Dívidas',
+                                  search: (initialDate, finalDate) {
+                                    setState(
+                                      () {
+                                        widget._filterPurchase!.startDate =
+                                            initialDate;
+                                        widget._filterPurchase!.finalDate =
+                                            finalDate;
+                                      },
+                                    );
+                                  },
                                 );
                               }
                             },
@@ -192,23 +179,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-
-            // TODO: Improve this
             Container(
               width: double.infinity,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    //crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Consumer<EarningService>(
                         builder:
                             (BuildContext context, provider, Widget? child) {
                           return FutureBuilder(
-                            future:
-                                provider.getEarningsSumByCategories(Filter()),
+                            future: provider.getEarningsSumByCategories(
+                                widget._filterEarning!),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -218,78 +202,21 @@ class _HomePageState extends State<HomePage> {
                               } else if (!snapshot.hasData) {
                                 return Text('No data available');
                               } else {
-                                pieChartDataEarning = snapshot.data!;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Text(
-                                        'Ganhos',
-                                        style: TextStyle(
-                                            fontSize: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium!
-                                                .fontSize),
-                                      ),
-                                    ),
-                                    pieChartDataEarning.length == 0
-                                        ? Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child:
-                                                Text('Nenhum dado registrado'),
-                                          )
-                                        : Column(
-                                            children: [
-                                              PieChartComponent(
-                                                pieChartData:
-                                                    pieChartDataEarning,
-                                              ),
-                                              Chart(
-                                                  pieChartData:
-                                                      pieChartDataEarning,
-                                                  sum: _sumValues(
-                                                      pieChartDataEarning)),
-                                            ],
-                                          ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Divider(),
-                                    Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Resumo dos dados'),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                  'Período: ${DateFormat('dd/MM/yyyy').format(widget._filterEarning?.startDate! ?? DateTime.now())} - ${DateFormat('dd/MM/yyyy').format(widget._filterEarning?.finalDate! ?? DateTime.now())}'),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Text(
-                                                  'Total: ${Formatter().formatMoney(_sumValues(pieChartDataEarning))}'),
-                                            ],
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pushNamed(
-                                                  AppRoutes.EARNING_LIST);
-                                            },
-                                            icon: Icon(Icons.monetization_on),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                widget.pieChartDataEarning = snapshot.data!;
+                                return ChartCard(
+                                  pieChartData: widget.pieChartDataEarning,
+                                  filter: widget._filterEarning!,
+                                  route: AppRoutes.EARNING_LIST,
+                                  title: 'Ganhos',
+                                  total: _sumValues(widget.pieChartDataEarning),
+                                  search: (initialDate, finalDate) {
+                                    setState(() {
+                                      widget._filterEarning!.startDate =
+                                          initialDate;
+                                      widget._filterEarning!.finalDate =
+                                          finalDate;
+                                    });
+                                  },
                                 );
                               }
                             },

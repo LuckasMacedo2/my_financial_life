@@ -30,25 +30,10 @@ class PurchaseService with ChangeNotifier {
   }
 
   List<Purchase> filterByDate(Filter filter) {
-    if (filter.startDate == null && filter.finalDate == null) {
-      return _items;
-    } else if (filter.startDate == null) {
-      return _items
-          .where((item) =>
-              (item.date is DateTime && item.date.isBefore(filter.finalDate!)))
-          .toList();
-    } else if (filter.finalDate == null) {
-      return _items
-          .where((item) =>
-              (item.date is DateTime && item.date.isAfter(filter.startDate!)))
-          .toList();
-    } else {
-      return _items
-          .where((item) => (item.date is DateTime &&
-              item.date.isAfter(filter.startDate!) &&
-              item.date.isBefore(filter.finalDate!)))
-          .toList();
-    }
+    return _items
+        .where((item) => (item.date.compareTo(filter.startDate!) >= 0 &&
+            item.date.compareTo(filter.finalDate!) <= 0))
+        .toList();
   }
 
   Future<List<PieChartSectionData>> getPurchasesSumByCategories(
@@ -61,7 +46,7 @@ class PurchaseService with ChangeNotifier {
 
     var groupedPurchases = getAllDistinctCategories(purchaseFiltered);
 
-    for (int i =0; i < groupedPurchases.length; i++) {
+    for (int i = 0; i < groupedPurchases.length; i++) {
       PurchaseCategory category = provider.items
           .where((c) => c.id == groupedPurchases[i].categoryId)
           .first;
@@ -70,7 +55,7 @@ class PurchaseService with ChangeNotifier {
         PieChartSectionData(
           value: sumPurchases(getPurchasesByCategoryId(
               groupedPurchases[i].categoryId, purchaseFiltered)),
-          color: category.color, 
+          color: category.color,
           title: category.name,
         ),
       );
@@ -203,7 +188,7 @@ class PurchaseService with ChangeNotifier {
 
   getMinimumDate(List<Purchase> purchases) {
     if (purchases.length == 0) {
-      return null; 
+      return null;
     }
 
     DateTime minDate = purchases[0].date;
@@ -213,7 +198,7 @@ class PurchaseService with ChangeNotifier {
         minDate = purchase.date;
       }
     });
- 
+
     return minDate;
   }
 
@@ -222,7 +207,7 @@ class PurchaseService with ChangeNotifier {
         purchases.where((purchase) => !purchase.paid).toList();
 
     if (paidPurchases.isEmpty) {
-      return null; 
+      return null;
     }
 
     DateTime minPaidDate = paidPurchases[0].date;
